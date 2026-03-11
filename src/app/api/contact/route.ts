@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { sendContactNotification } from '@/lib/email';
 
 const CONTACTS_DIR = path.join(process.cwd(), 'data', 'contacts');
 
@@ -17,6 +18,7 @@ export async function POST(request: NextRequest) {
     await fs.mkdir(CONTACTS_DIR, { recursive: true });
     const filename = `contact-${Date.now()}.json`;
     await fs.writeFile(path.join(CONTACTS_DIR, filename), JSON.stringify(submission, null, 2));
+    sendContactNotification(submission);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Contact form error:', error);

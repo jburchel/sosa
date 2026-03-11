@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { sendWaiverNotification } from '@/lib/email';
 
 const WAIVERS_DIR = path.join(process.cwd(), 'data', 'waivers');
 
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
       path.join(WAIVERS_DIR, filename),
       JSON.stringify(waiver, null, 2)
     );
+    sendWaiverNotification(waiver);
     return NextResponse.json({ success: true, signedAt: waiver.signedAt });
   } catch (error) {
     console.error('Waiver submission error:', error);
