@@ -7,7 +7,7 @@ export default function Hero() {
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/tiger-basketball.png"
+          src="/images/boys-game-action-1.png"
           alt="SOSA Basketball"
           fill
           priority

@@ -10,12 +10,12 @@ import { PROGRAMS, CORE_VALUES, MISSION_STATEMENT } from '@/lib/constants';
 const MISSION_PREVIEW = MISSION_STATEMENT.split('. ').slice(0, 2).join('. ') + '.';
 
 const GALLERY_IMAGES = [
-  { src: '/images/tiger-mascot.jpg', alt: 'SOSA Tiger Mascot' },
-  { src: '/images/heart-of-tiger.jpg', alt: 'Heart of a Tiger' },
-  { src: '/images/community.jpg', alt: 'SOSA Community' },
-  { src: '/images/sosa-tigers-badge.png', alt: 'SOSA Tigers Badge' },
-  { src: '/images/sosa-lady-tigers.png', alt: 'SOSA Lady Tigers' },
-  { src: '/images/daily-affirmation.png', alt: 'Daily Affirmation' },
+  { src: '/images/boys-game-action-1.png', alt: 'SOSA Tigers Game Action' },
+  { src: '/images/girls-game-action-1.png', alt: 'SOSA Lady Tigers Game Action' },
+  { src: '/images/practice-action.jpg', alt: 'SOSA Basketball Practice' },
+  { src: '/images/boys-game-action-3.png', alt: 'Tigers In Action' },
+  { src: '/images/girls-game-action-2.png', alt: 'Lady Tigers In Action' },
+  { src: '/images/basketball-training.jpg', alt: 'Basketball Training' },
 ];
 
 export default function Home() {

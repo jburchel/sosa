@@ -9,11 +9,61 @@ export const metadata: Metadata = {
 };
 
 const GALLERY_IMAGES = [
+  // Action shots — live game and training photography
   {
-    src: '/images/tiger-mascot.jpg',
-    alt: 'SOSA Tiger Mascot',
+    src: '/images/boys-game-action-1.png',
+    alt: 'Boys Tigers Game Action',
     width: 800,
     height: 800,
+  },
+  {
+    src: '/images/boys-game-action-2.png',
+    alt: 'Boys Tigers Team Action',
+    width: 800,
+    height: 800,
+  },
+  {
+    src: '/images/boys-game-action-3.png',
+    alt: 'Boys Tigers Dunk and Layup',
+    width: 800,
+    height: 800,
+  },
+  {
+    src: '/images/girls-game-action-1.png',
+    alt: 'Lady Tigers Game Action',
+    width: 800,
+    height: 800,
+  },
+  {
+    src: '/images/girls-game-action-2.png',
+    alt: 'Lady Tigers More Action',
+    width: 800,
+    height: 800,
+  },
+  {
+    src: '/images/practice-action.jpg',
+    alt: 'Players Training in Orange Uniforms',
+    width: 800,
+    height: 600,
+  },
+  {
+    src: '/images/basketball-training.jpg',
+    alt: 'Players Scrimmaging in Gym',
+    width: 800,
+    height: 600,
+  },
+  {
+    src: '/images/player-portrait.png',
+    alt: 'SOSA Player Portrait',
+    width: 800,
+    height: 1000,
+  },
+  // Community & brand imagery
+  {
+    src: '/images/community.jpg',
+    alt: 'SOSA Community',
+    width: 800,
+    height: 600,
   },
   {
     src: '/images/heart-of-tiger.jpg',
@@ -22,9 +72,15 @@ const GALLERY_IMAGES = [
     height: 800,
   },
   {
-    src: '/images/community.jpg',
-    alt: 'SOSA Community',
+    src: '/images/tiger-mascot.jpg',
+    alt: 'SOSA Tiger Mascot',
     width: 800,
+    height: 800,
+  },
+  {
+    src: '/images/daily-affirmation.png',
+    alt: 'Daily Affirmation',
+    width: 600,
     height: 600,
   },
   {
@@ -60,12 +116,6 @@ const GALLERY_IMAGES = [
   {
     src: '/images/pink-tiger-light.png',
     alt: 'Pink Tiger Light',
-    width: 600,
-    height: 600,
-  },
-  {
-    src: '/images/daily-affirmation.png',
-    alt: 'Daily Affirmation',
     width: 600,
     height: 600,
   },

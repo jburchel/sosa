@@ -23,6 +23,22 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Action Banner */}
+      <section className="py-8 bg-black">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="relative w-full aspect-[21/9] rounded-lg overflow-hidden border border-sosa-gray">
+            <Image
+              src="/images/boys-game-action-2.png"
+              alt="SOSA Boys Tigers — game action collage"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1200px) 100vw, 1200px"
+              priority
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Mission Statement */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
@@ -75,6 +91,21 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Lady Tigers Action Banner */}
+      <section className="py-8 bg-black">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-sosa-gray">
+            <Image
+              src="/images/girls-game-action-1.png"
+              alt="SOSA Lady Tigers — game action collage"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1200px) 100vw, 1200px"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Core Values */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
@@ -104,6 +135,17 @@ export default function AboutPage() {
             title="The Tiger Mindset"
             subtitle="Daily affirmations our athletes live by — on the court and beyond."
           />
+          {/* Practice / training photo */}
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-sosa-gray mb-12">
+            <Image
+              src="/images/practice-action.jpg"
+              alt="SOSA players training on the indoor court"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1200px) 100vw, 1200px"
+            />
+          </div>
+
           <div className="max-w-3xl mx-auto space-y-6">
             {TIGER_MINDSET.map((affirmation, index) => (
               <div key={index} className="flex items-start gap-4">

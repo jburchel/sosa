@@ -72,6 +72,28 @@ export default function TeamsPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Boys action photo showcase */}
+              <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <Image
+                    src="/images/boys-game-action-1.png"
+                    alt="SOSA Tigers game action"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <Image
+                    src="/images/boys-game-action-3.png"
+                    alt="SOSA Tigers dunking and layup highlights"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -125,6 +147,28 @@ export default function TeamsPage() {
                     <p className="text-white font-semibold text-lg">Coming Soon</p>
                     <p className="text-gray-500 text-sm mt-1">Season roster will be posted here</p>
                   </div>
+                </div>
+              </div>
+
+              {/* Lady Tigers action photo showcase */}
+              <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <Image
+                    src="/images/girls-game-action-1.png"
+                    alt="SOSA Lady Tigers game action"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <Image
+                    src="/images/girls-game-action-2.png"
+                    alt="SOSA Lady Tigers in action"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
                 </div>
               </div>
             </div>
