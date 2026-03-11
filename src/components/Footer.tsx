@@ -87,8 +87,14 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-gray-800 mt-8 pt-6 text-center text-gray-500 text-sm">
-          &copy; {new Date().getFullYear()} Square One Sports Academy. All rights reserved.
+        <div className="border-t border-gray-800 mt-8 pt-6 flex items-center justify-between text-gray-500 text-sm">
+          <span>&copy; {new Date().getFullYear()} Square One Sports Academy. All rights reserved.</span>
+          <Link
+            href="/admin"
+            className="text-gray-600 hover:text-gray-400 transition-colors text-xs"
+          >
+            Admin
+          </Link>
         </div>
       </div>
     </footer>
