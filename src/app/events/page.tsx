@@ -28,7 +28,7 @@ export default function EventsPage() {
           <h2 className="text-2xl font-bold uppercase tracking-wide mb-6">
             Practice &amp; Game Calendar
           </h2>
-          <GoogleCalendar />
+          <GoogleCalendar calendarId="squareonetigers@gmail.com" />
         </div>
       </section>
 
