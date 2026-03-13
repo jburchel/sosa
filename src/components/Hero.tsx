@@ -11,11 +11,11 @@ export default function Hero() {
           alt="SOSA Basketball"
           fill
           priority
-          className="object-cover object-center opacity-20"
+          className="object-cover object-center opacity-40"
           sizes="100vw"
         />
         {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
       </div>
 
       {/* Content */}
@@ -46,19 +46,19 @@ export default function Hero() {
             href="#"
             className="bg-sosa-orange text-black font-bold px-8 py-3 rounded-lg text-base hover:bg-orange-500 transition-colors"
           >
-            Register
+            Register a New Player
           </Link>
-          <Link
+          {/* <Link
             href="#"
             className="border-2 border-white text-white font-bold px-8 py-3 rounded-lg text-base hover:border-sosa-orange hover:text-sosa-orange transition-colors"
           >
             Donate
-          </Link>
+          </Link> */}
           <Link
-            href="/about"
+            href="#"
             className="border-2 border-gray-600 text-gray-300 font-bold px-8 py-3 rounded-lg text-base hover:border-sosa-orange hover:text-sosa-orange transition-colors"
           >
-            Join SOSA
+            Join the Team (Volunteer)
           </Link>
         </div>
       </div>

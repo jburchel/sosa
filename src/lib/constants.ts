@@ -4,7 +4,7 @@ export const NAV_LINKS = [
   { label: 'Programs', href: '/programs' },
   { label: 'Teams', href: '/teams' },
   { label: 'Events', href: '/events' },
-  { label: 'Donate', href: '/donate' },
+  // { label: 'Donate', href: '/donate' },
   { label: 'Sponsors', href: '/sponsors' },
   { label: 'Gallery', href: '/gallery' },
   { label: 'Contact', href: '/contact' },

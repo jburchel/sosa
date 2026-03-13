@@ -153,7 +153,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 8. Donate CTA */}
+      {/* 8. Donate CTA - commented out until non-profit status is established
       <section className="py-20 bg-gradient-to-br from-sosa-dark via-sosa-gray to-sosa-dark">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight mb-4">
@@ -171,6 +171,7 @@ export default function Home() {
           </Link>
         </div>
       </section>
+      */}
     </>
   );
 }

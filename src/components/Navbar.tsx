@@ -46,7 +46,7 @@ export default function Navbar() {
             href="#"
             className="bg-sosa-orange text-black font-bold text-sm px-4 py-2 rounded hover:bg-orange-500 transition-colors"
           >
-            Register
+            Register a New Player
           </Link>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
