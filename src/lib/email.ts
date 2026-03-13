@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 
-const ADMIN_EMAILS = ['jburchel@gmail.com', 'vernaspivey24@gmail.com'];
+const ADMIN_EMAILS = ['squareonetigers@gmail.com'];
 const FROM_EMAIL = process.env.FROM_EMAIL || 'SOSA Basketball <noreply@sosabasketball.org>';
 
 function getResend() {

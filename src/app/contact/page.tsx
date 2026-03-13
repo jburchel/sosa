@@ -102,10 +102,10 @@ export default function ContactPage() {
                   <div>
                     <p className="text-xs uppercase tracking-widest text-gray-500 mb-0.5">Email</p>
                     <a
-                      href="mailto:info@sosabasketball.org"
+                      href="mailto:squareonetigers@gmail.com"
                       className="text-white hover:text-sosa-orange transition-colors duration-200"
                     >
-                      info@sosabasketball.org
+                      squareonetigers@gmail.com
                     </a>
                   </div>
                 </div>
