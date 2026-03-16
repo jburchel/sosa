@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import SectionHeading from '@/components/SectionHeading';
+import { getManifest } from '@/lib/image-slots';
 
 export const metadata: Metadata = {
   title: 'Gallery | SOSA Basketball',
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
     'View game photos, team photos, and community event images from SOSA Basketball — Square One Sports Academy.',
 };
 
-const GALLERY_IMAGES = [
+const BASE_GALLERY_IMAGES = [
   // Action shots — live game and training photography
   {
     src: '/images/boys-game-action-1.png',
@@ -127,7 +128,19 @@ const GALLERY_IMAGES = [
   },
 ];
 
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const manifest = await getManifest();
+
+  // Merge base gallery with admin-uploaded images
+  const uploadedImages = manifest.galleryImages.map((g) => ({
+    src: `/api/images/${g.filename}`,
+    alt: g.alt,
+    width: 800,
+    height: 800,
+  }));
+
+  const allImages = [...BASE_GALLERY_IMAGES, ...uploadedImages];
+
   return (
     <div className="bg-black text-white">
 
@@ -145,7 +158,7 @@ export default function GalleryPage() {
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {GALLERY_IMAGES.map((image) => (
+            {allImages.map((image) => (
               <div
                 key={image.src}
                 className="rounded-lg overflow-hidden bg-sosa-gray border border-gray-800 hover:border-sosa-orange transition-all duration-300 hover:scale-105 aspect-square relative"
@@ -156,6 +169,7 @@ export default function GalleryPage() {
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  unoptimized={image.src.startsWith('/api/')}
                 />
               </div>
             ))}

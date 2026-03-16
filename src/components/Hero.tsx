@@ -1,18 +1,23 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { getManifest, resolveSlotSrc } from '@/lib/image-slots';
 
-export default function Hero() {
+export default async function Hero() {
+  const manifest = await getManifest();
+  const heroSrc = resolveSlotSrc('hero', manifest);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden -mt-16">
       {/* Background image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/boys-game-action-1.png"
+          src={heroSrc}
           alt="SOSA Basketball"
           fill
           priority
           className="object-cover object-center opacity-40"
           sizes="100vw"
+          unoptimized={heroSrc.startsWith('/api/')}
         />
         {/* Dark gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />

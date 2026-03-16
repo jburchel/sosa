@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import SectionHeading from '@/components/SectionHeading';
+import { getManifest, resolveSlotSrc } from '@/lib/image-slots';
 
 export const metadata: Metadata = {
   title: 'Donate | SOSA Basketball',
@@ -9,7 +10,15 @@ export const metadata: Metadata = {
     'Support SOSA Basketball and help us provide youth with structured mentorship, competitive athletic opportunities, and a safe environment to grow.',
 };
 
-export default function DonatePage() {
+export default async function DonatePage() {
+  const manifest = await getManifest();
+  const communitySrc = resolveSlotSrc('donate-community', manifest);
+  const heartSrc = resolveSlotSrc('donate-heart', manifest);
+
+  function isApi(src: string) {
+    return src.startsWith('/api/');
+  }
+
   return (
     <div className="bg-black text-white">
 
@@ -68,11 +77,12 @@ export default function DonatePage() {
             <div className="md:w-1/2 flex justify-center">
               <div className="relative w-full max-w-sm aspect-square rounded-2xl overflow-hidden border border-sosa-gray">
                 <Image
-                  src="/images/community.jpg"
+                  src={communitySrc}
                   alt="SOSA Community"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  unoptimized={isApi(communitySrc)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
@@ -92,11 +102,12 @@ export default function DonatePage() {
           <div className="flex flex-col md:flex-row items-center gap-10">
             <div className="relative w-48 h-48 flex-shrink-0 rounded-full overflow-hidden border-2 border-sosa-orange">
               <Image
-                src="/images/heart-of-tiger.jpg"
+                src={heartSrc}
                 alt="Heart of a Tiger"
                 fill
                 className="object-cover"
                 sizes="192px"
+                unoptimized={isApi(heartSrc)}
               />
             </div>
             <div>

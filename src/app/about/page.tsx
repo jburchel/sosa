@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import SectionHeading from '@/components/SectionHeading';
 import { MISSION_STATEMENT, VISION_STATEMENT, CORE_VALUES, TIGER_MINDSET } from '@/lib/constants';
+import { getManifest, resolveSlotSrc } from '@/lib/image-slots';
 
 export const metadata: Metadata = {
   title: 'About | SOSA Basketball',
@@ -9,7 +10,19 @@ export const metadata: Metadata = {
     'Learn about Square One Sports Academy — our mission, vision, core values, and the Tiger Mindset that drives everything we do.',
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const manifest = await getManifest();
+  const bannerSrc = resolveSlotSrc('about-banner', manifest);
+  const missionSrc = resolveSlotSrc('about-mission', manifest);
+  const visionSrc = resolveSlotSrc('about-vision', manifest);
+  const ladyTigersBannerSrc = resolveSlotSrc('about-lady-tigers-banner', manifest);
+  const practiceSrc = resolveSlotSrc('about-practice', manifest);
+  const affirmationSrc = resolveSlotSrc('about-affirmation', manifest);
+
+  function isApi(src: string) {
+    return src.startsWith('/api/');
+  }
+
   return (
     <div className="bg-black text-white">
 
@@ -28,12 +41,13 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="relative w-full aspect-[21/9] rounded-lg overflow-hidden border border-sosa-gray">
             <Image
-              src="/images/boys-game-action-2.png"
+              src={bannerSrc}
               alt="SOSA Boys Tigers — game action collage"
               fill
               className="object-cover"
               sizes="(max-width: 1200px) 100vw, 1200px"
               priority
+              unoptimized={isApi(bannerSrc)}
             />
           </div>
         </div>
@@ -53,11 +67,12 @@ export default function AboutPage() {
             <div className="md:w-1/2 flex justify-center">
               <div className="relative w-full max-w-sm aspect-square rounded-2xl overflow-hidden border border-sosa-gray">
                 <Image
-                  src="/images/tiger-mascot.jpg"
+                  src={missionSrc}
                   alt="SOSA Tiger Mascot"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  unoptimized={isApi(missionSrc)}
                 />
               </div>
             </div>
@@ -79,11 +94,12 @@ export default function AboutPage() {
             <div className="md:w-1/2 flex justify-center">
               <div className="relative w-full max-w-sm aspect-square rounded-2xl overflow-hidden border border-sosa-gray">
                 <Image
-                  src="/images/heart-of-tiger.jpg"
+                  src={visionSrc}
                   alt="Heart of a Tiger"
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
+                  unoptimized={isApi(visionSrc)}
                 />
               </div>
             </div>
@@ -96,11 +112,12 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-sosa-gray">
             <Image
-              src="/images/girls-game-action-1.png"
+              src={ladyTigersBannerSrc}
               alt="SOSA Lady Tigers — game action collage"
               fill
               className="object-cover"
               sizes="(max-width: 1200px) 100vw, 1200px"
+              unoptimized={isApi(ladyTigersBannerSrc)}
             />
           </div>
         </div>
@@ -138,11 +155,12 @@ export default function AboutPage() {
           {/* Practice / training photo */}
           <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-sosa-gray mb-12">
             <Image
-              src="/images/practice-action.jpg"
+              src={practiceSrc}
               alt="SOSA players training on the indoor court"
               fill
               className="object-cover"
               sizes="(max-width: 1200px) 100vw, 1200px"
+              unoptimized={isApi(practiceSrc)}
             />
           </div>
 
@@ -163,11 +181,12 @@ export default function AboutPage() {
           <div className="mt-16 flex justify-center">
             <div className="relative w-64 h-64 opacity-80">
               <Image
-                src="/images/daily-affirmation.png"
+                src={affirmationSrc}
                 alt="Daily Affirmation"
                 fill
                 className="object-contain"
                 sizes="256px"
+                unoptimized={isApi(affirmationSrc)}
               />
             </div>
           </div>

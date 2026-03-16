@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import ImageManager from '@/components/admin/ImageManager';
 
 interface Waiver {
   id: string;
@@ -28,7 +29,7 @@ interface Contact {
   submittedAt: string;
 }
 
-type Tab = 'waivers' | 'contacts';
+type Tab = 'waivers' | 'contacts' | 'images';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-US', {
@@ -282,19 +283,26 @@ function Dashboard({
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="flex border-b border-gray-800 mt-2">
-          {(['waivers', 'contacts'] as Tab[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-5 py-3 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
-                activeTab === tab
-                  ? 'border-sosa-orange text-sosa-orange'
-                  : 'border-transparent text-gray-400 hover:text-white'
-              }`}
-            >
-              {tab === 'waivers' ? 'Waivers' : 'Contact Messages'}
-            </button>
-          ))}
+          {(['waivers', 'contacts', 'images'] as Tab[]).map((tab) => {
+            const tabLabels: Record<Tab, string> = {
+              waivers: 'Waivers',
+              contacts: 'Contact Messages',
+              images: 'Images',
+            };
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-5 py-3 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
+                  activeTab === tab
+                    ? 'border-sosa-orange text-sosa-orange'
+                    : 'border-transparent text-gray-400 hover:text-white'
+                }`}
+              >
+                {tabLabels[tab]}
+              </button>
+            );
+          })}
         </div>
 
         {/* Content */}
@@ -332,6 +340,12 @@ function Dashboard({
                   ))}
                 </div>
               )}
+            </section>
+          )}
+
+          {activeTab === 'images' && (
+            <section>
+              <ImageManager />
             </section>
           )}
         </div>

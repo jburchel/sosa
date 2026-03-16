@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import SectionHeading from '@/components/SectionHeading';
+import { getManifest, resolveSlotSrc } from '@/lib/image-slots';
 
 export const metadata: Metadata = {
   title: 'Teams | SOSA Basketball',
@@ -9,7 +10,19 @@ export const metadata: Metadata = {
     'Meet the SOSA Tigers and SOSA Lady Tigers — competitive youth basketball teams built on faith, character, and excellence.',
 };
 
-export default function TeamsPage() {
+export default async function TeamsPage() {
+  const manifest = await getManifest();
+  const tigersBadge = resolveSlotSrc('teams-tigers-badge', manifest);
+  const boysAction1 = resolveSlotSrc('teams-boys-action-1', manifest);
+  const boysAction2 = resolveSlotSrc('teams-boys-action-2', manifest);
+  const ladyTigersBadge = resolveSlotSrc('teams-lady-tigers-badge', manifest);
+  const girlsAction1 = resolveSlotSrc('teams-girls-action-1', manifest);
+  const girlsAction2 = resolveSlotSrc('teams-girls-action-2', manifest);
+
+  function isApi(src: string) {
+    return src.startsWith('/api/');
+  }
+
   return (
     <div className="bg-black text-white">
 
@@ -36,11 +49,12 @@ export default function TeamsPage() {
                 <div className="flex-shrink-0 flex justify-center">
                   <div className="relative w-48 h-48 md:w-56 md:h-56">
                     <Image
-                      src="/images/sosa-tigers-badge.png"
+                      src={tigersBadge}
                       alt="SOSA Tigers Badge"
                       fill
                       className="object-contain"
                       sizes="(max-width: 768px) 192px, 224px"
+                      unoptimized={isApi(tigersBadge)}
                     />
                   </div>
                 </div>
@@ -77,20 +91,22 @@ export default function TeamsPage() {
               <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative aspect-video rounded-lg overflow-hidden">
                   <Image
-                    src="/images/boys-game-action-1.png"
+                    src={boysAction1}
                     alt="SOSA Tigers game action"
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 50vw"
+                    unoptimized={isApi(boysAction1)}
                   />
                 </div>
                 <div className="relative aspect-video rounded-lg overflow-hidden">
                   <Image
-                    src="/images/boys-game-action-3.png"
+                    src={boysAction2}
                     alt="SOSA Tigers dunking and layup highlights"
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 50vw"
+                    unoptimized={isApi(boysAction2)}
                   />
                 </div>
               </div>
@@ -112,11 +128,12 @@ export default function TeamsPage() {
                 <div className="flex-shrink-0 flex justify-center">
                   <div className="relative w-48 h-48 md:w-56 md:h-56">
                     <Image
-                      src="/images/sosa-lady-tigers.png"
+                      src={ladyTigersBadge}
                       alt="SOSA Lady Tigers"
                       fill
                       className="object-contain"
                       sizes="(max-width: 768px) 192px, 224px"
+                      unoptimized={isApi(ladyTigersBadge)}
                     />
                   </div>
                 </div>
@@ -154,20 +171,22 @@ export default function TeamsPage() {
               <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative aspect-video rounded-lg overflow-hidden">
                   <Image
-                    src="/images/girls-game-action-1.png"
+                    src={girlsAction1}
                     alt="SOSA Lady Tigers game action"
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 50vw"
+                    unoptimized={isApi(girlsAction1)}
                   />
                 </div>
                 <div className="relative aspect-video rounded-lg overflow-hidden">
                   <Image
-                    src="/images/girls-game-action-2.png"
+                    src={girlsAction2}
                     alt="SOSA Lady Tigers in action"
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 50vw"
+                    unoptimized={isApi(girlsAction2)}
                   />
                 </div>
               </div>
