@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import SectionHeading from '@/components/SectionHeading';
-import { getManifest } from '@/lib/image-slots';
+import { getManifest, IMAGE_SLOTS } from '@/lib/image-slots';
 
 export const metadata: Metadata = {
   title: 'Gallery | SOSA Basketball',
@@ -131,7 +131,18 @@ const BASE_GALLERY_IMAGES = [
 export default async function GalleryPage() {
   const manifest = await getManifest();
 
-  // Merge base gallery with admin-uploaded images
+  // Slot replacement images (admin-uploaded replacements for app images)
+  const slotOverrideImages = Object.entries(manifest.slotOverrides).map(([slotId, filename]) => {
+    const slot = IMAGE_SLOTS.find((s) => s.id === slotId);
+    return {
+      src: `/api/images/${filename}`,
+      alt: slot ? `${slot.label} (${slot.usedIn})` : 'Uploaded image',
+      width: 800,
+      height: 800,
+    };
+  });
+
+  // Gallery additions (admin-uploaded new gallery images)
   const uploadedImages = manifest.galleryImages.map((g) => ({
     src: `/api/images/${g.filename}`,
     alt: g.alt,
@@ -139,7 +150,7 @@ export default async function GalleryPage() {
     height: 800,
   }));
 
-  const allImages = [...BASE_GALLERY_IMAGES, ...uploadedImages];
+  const allImages = [...BASE_GALLERY_IMAGES, ...slotOverrideImages, ...uploadedImages];
 
   return (
     <div className="bg-black text-white">
