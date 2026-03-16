@@ -48,7 +48,7 @@ export const TIGER_MINDSET = [
 
 export const SOCIAL_LINKS = {
   facebook: 'https://facebook.com/sosabasketball',
-  instagram: 'https://instagram.com/sosabasketball',
+  instagram: 'https://instagram.com/sosa_basketball',
   twitter: '#',
 };
 
