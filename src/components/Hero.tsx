@@ -48,7 +48,7 @@ export default async function Hero() {
         {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Link
-            href="#"
+            href="/register"
             className="bg-sosa-orange text-black font-bold px-8 py-3 rounded-lg text-base hover:bg-orange-500 transition-colors"
           >
             Register a New Player
@@ -60,7 +60,7 @@ export default async function Hero() {
             Donate
           </Link> */}
           <Link
-            href="#"
+            href="/volunteer"
             className="border-2 border-gray-600 text-gray-300 font-bold px-8 py-3 rounded-lg text-base hover:border-sosa-orange hover:text-sosa-orange transition-colors"
           >
             Join the Team (Volunteer)

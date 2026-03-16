@@ -43,7 +43,7 @@ export default function Navbar() {
         {/* Register Button + Hamburger */}
         <div className="flex items-center gap-4">
           <Link
-            href="#"
+            href="/register"
             className="bg-sosa-orange text-black font-bold text-sm px-4 py-2 rounded hover:bg-orange-500 transition-colors"
           >
             Register a New Player

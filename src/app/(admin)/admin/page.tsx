@@ -29,7 +29,25 @@ interface Contact {
   submittedAt: string;
 }
 
-type Tab = 'waivers' | 'contacts' | 'images';
+interface Volunteer {
+  id: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  address: string;
+  cityStateZip: string;
+  dateOfBirth: string;
+  areasOfInterest: string[];
+  experience?: string;
+  whyVolunteer: string;
+  emergencyName: string;
+  emergencyPhone: string;
+  emergencyRelationship: string;
+  signature: string;
+  submittedAt: string;
+}
+
+type Tab = 'waivers' | 'contacts' | 'volunteers' | 'images';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-US', {
@@ -58,7 +76,7 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
 function LoginScreen({
   onLogin,
 }: {
-  onLogin: (waivers: Waiver[], contacts: Contact[]) => void;
+  onLogin: (waivers: Waiver[], contacts: Contact[], volunteers: Volunteer[]) => void;
 }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -83,16 +101,18 @@ function LoginScreen({
         return;
       }
 
-      // Fetch both data sets after successful login
-      const [waiversRes, contactsRes] = await Promise.all([
+      // Fetch all data sets after successful login
+      const [waiversRes, contactsRes, volunteersRes] = await Promise.all([
         fetch('/api/admin/waivers'),
         fetch('/api/admin/contacts'),
+        fetch('/api/admin/volunteers'),
       ]);
 
       const waiversData = waiversRes.ok ? await waiversRes.json() : { waivers: [] };
       const contactsData = contactsRes.ok ? await contactsRes.json() : { contacts: [] };
+      const volunteersData = volunteersRes.ok ? await volunteersRes.json() : { volunteers: [] };
 
-      onLogin(waiversData.waivers ?? [], contactsData.contacts ?? []);
+      onLogin(waiversData.waivers ?? [], contactsData.contacts ?? [], volunteersData.volunteers ?? []);
     } catch {
       setError('Connection error. Please try again.');
     } finally {
@@ -243,15 +263,75 @@ function ContactCard({ contact }: { contact: Contact }) {
   );
 }
 
+// ── Volunteer Card ────────────────────────────────────────────────────────────
+
+function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="bg-sosa-gray border border-gray-800 rounded-lg overflow-hidden">
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full text-left px-5 py-4 flex items-start justify-between gap-4 hover:bg-gray-800/30 transition-colors"
+      >
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-white truncate">{volunteer.fullName}</p>
+          <p className="text-sm text-gray-400 mt-0.5">
+            {volunteer.email} &middot; {volunteer.areasOfInterest.slice(0, 2).join(', ')}
+            {volunteer.areasOfInterest.length > 2 && ` +${volunteer.areasOfInterest.length - 2} more`}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">{formatDate(volunteer.submittedAt)}</p>
+        </div>
+        <span className="text-gray-400 text-lg mt-1 flex-shrink-0">
+          {expanded ? '▲' : '▼'}
+        </span>
+      </button>
+
+      {expanded && (
+        <div className="bg-sosa-dark border-t border-gray-800 px-5 py-5 space-y-3">
+          <DetailRow label="Full Name" value={volunteer.fullName} />
+          <DetailRow label="Phone" value={volunteer.phone} />
+          <DetailRow label="Email" value={volunteer.email} />
+          <DetailRow label="Address" value={volunteer.address} />
+          <DetailRow label="City / State / Zip" value={volunteer.cityStateZip} />
+          <DetailRow label="Date of Birth" value={volunteer.dateOfBirth} />
+          <DetailRow label="Areas of Interest" value={volunteer.areasOfInterest.join(', ')} />
+          {volunteer.experience && (
+            <div className="pt-1">
+              <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">Experience</p>
+              <p className="text-white text-sm whitespace-pre-wrap leading-relaxed">
+                {volunteer.experience}
+              </p>
+            </div>
+          )}
+          <div className="pt-1">
+            <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">Why Volunteer</p>
+            <p className="text-white text-sm whitespace-pre-wrap leading-relaxed">
+              {volunteer.whyVolunteer}
+            </p>
+          </div>
+          <DetailRow label="Emergency Contact" value={volunteer.emergencyName} />
+          <DetailRow label="Emergency Phone" value={volunteer.emergencyPhone} />
+          <DetailRow label="Relationship" value={volunteer.emergencyRelationship} />
+          <DetailRow label="Signature" value={volunteer.signature} />
+          <DetailRow label="Submitted At" value={formatDate(volunteer.submittedAt)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 function Dashboard({
   waivers,
   contacts,
+  volunteers,
   onLogout,
 }: {
   waivers: Waiver[];
   contacts: Contact[];
+  volunteers: Volunteer[];
   onLogout: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<Tab>('waivers');
@@ -283,10 +363,11 @@ function Dashboard({
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="flex border-b border-gray-800 mt-2">
-          {(['waivers', 'contacts', 'images'] as Tab[]).map((tab) => {
+          {(['waivers', 'contacts', 'volunteers', 'images'] as Tab[]).map((tab) => {
             const tabLabels: Record<Tab, string> = {
               waivers: 'Waivers',
-              contacts: 'Contact Messages',
+              contacts: 'Messages',
+              volunteers: 'Volunteers',
               images: 'Images',
             };
             return (
@@ -343,6 +424,24 @@ function Dashboard({
             </section>
           )}
 
+          {activeTab === 'volunteers' && (
+            <section>
+              <p className="text-gray-400 text-sm mb-5">
+                <span className="text-sosa-orange font-semibold">{volunteers.length}</span>{' '}
+                {volunteers.length === 1 ? 'application' : 'applications'} received
+              </p>
+              {volunteers.length === 0 ? (
+                <EmptyState message="No volunteer applications yet." />
+              ) : (
+                <div className="space-y-3">
+                  {volunteers.map((v) => (
+                    <VolunteerCard key={v.id} volunteer={v} />
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
           {activeTab === 'images' && (
             <section>
               <ImageManager />
@@ -370,6 +469,7 @@ export default function AdminPage() {
   const [appState, setAppState] = useState<AppState>('checking');
   const [waivers, setWaivers] = useState<Waiver[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -380,10 +480,15 @@ export default function AdminPage() {
       }
       if (res.ok) {
         const waiversData = await res.json();
-        const contactsRes = await fetch('/api/admin/contacts');
+        const [contactsRes, volunteersRes] = await Promise.all([
+          fetch('/api/admin/contacts'),
+          fetch('/api/admin/volunteers'),
+        ]);
         const contactsData = contactsRes.ok ? await contactsRes.json() : { contacts: [] };
+        const volunteersData = volunteersRes.ok ? await volunteersRes.json() : { volunteers: [] };
         setWaivers(waiversData.waivers ?? []);
         setContacts(contactsData.contacts ?? []);
+        setVolunteers(volunteersData.volunteers ?? []);
         setAppState('dashboard');
       } else {
         setAppState('login');
@@ -401,12 +506,14 @@ export default function AdminPage() {
     await fetch('/api/admin/auth', { method: 'DELETE' });
     setWaivers([]);
     setContacts([]);
+    setVolunteers([]);
     setAppState('login');
   }
 
-  function handleLogin(newWaivers: Waiver[], newContacts: Contact[]) {
+  function handleLogin(newWaivers: Waiver[], newContacts: Contact[], newVolunteers: Volunteer[]) {
     setWaivers(newWaivers);
     setContacts(newContacts);
+    setVolunteers(newVolunteers);
     setAppState('dashboard');
   }
 
@@ -422,5 +529,5 @@ export default function AdminPage() {
     return <LoginScreen onLogin={handleLogin} />;
   }
 
-  return <Dashboard waivers={waivers} contacts={contacts} onLogout={handleLogout} />;
+  return <Dashboard waivers={waivers} contacts={contacts} volunteers={volunteers} onLogout={handleLogout} />;
 }

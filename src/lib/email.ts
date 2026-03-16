@@ -74,3 +74,52 @@ export async function sendContactNotification(contact: {
     console.error('Failed to send contact notification email:', error);
   }
 }
+
+export async function sendVolunteerNotification(application: {
+  fullName: string;
+  phone: string;
+  email: string;
+  address: string;
+  cityStateZip: string;
+  dateOfBirth: string;
+  areasOfInterest: string[];
+  experience?: string;
+  whyVolunteer: string;
+  emergencyName: string;
+  emergencyPhone: string;
+  emergencyRelationship: string;
+  submittedAt: string;
+}) {
+  try {
+    await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAILS,
+      subject: `New Volunteer Application: ${application.fullName}`,
+      html: `
+        <h2>New Volunteer Application</h2>
+        <p><strong>Submitted at:</strong> ${new Date(application.submittedAt).toLocaleString()}</p>
+        <hr />
+        <h3>Personal Information</h3>
+        <p><strong>Full Name:</strong> ${application.fullName}</p>
+        <p><strong>Phone:</strong> ${application.phone}</p>
+        <p><strong>Email:</strong> ${application.email}</p>
+        <p><strong>Address:</strong> ${application.address}</p>
+        <p><strong>City/State/Zip:</strong> ${application.cityStateZip}</p>
+        <p><strong>Date of Birth:</strong> ${application.dateOfBirth}</p>
+        <h3>Areas of Interest</h3>
+        <p>${application.areasOfInterest.length > 0 ? application.areasOfInterest.join(', ') : 'None selected'}</p>
+        ${application.experience ? `<h3>Experience Working with Youth</h3><p>${application.experience}</p>` : ''}
+        <h3>Why Volunteer with SOSA?</h3>
+        <p>${application.whyVolunteer}</p>
+        <h3>Emergency Contact</h3>
+        <p><strong>Name:</strong> ${application.emergencyName}</p>
+        <p><strong>Phone:</strong> ${application.emergencyPhone}</p>
+        <p><strong>Relationship:</strong> ${application.emergencyRelationship}</p>
+        <hr />
+        <p><em>This application was digitally signed and is stored in the SOSA admin dashboard.</em></p>
+      `,
+    });
+  } catch (error) {
+    console.error('Failed to send volunteer notification email:', error);
+  }
+}
