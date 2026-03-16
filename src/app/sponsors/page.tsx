@@ -5,14 +5,16 @@ import SectionHeading from '@/components/SectionHeading';
 export const metadata: Metadata = {
   title: 'Sponsors | SOSA Basketball',
   description:
-    'Meet the sponsors and partners who help make SOSA Basketball programs possible for youth athletes.',
+    'Support SOSA Basketball through community sponsorship. Learn about our Bronze, Silver, and Gold sponsorship tiers.',
 };
 
 const PLACEHOLDER_SPONSORS = [
-  { id: 1, label: 'Platinum Sponsor' },
+  { id: 1, label: 'Gold Sponsor' },
   { id: 2, label: 'Gold Sponsor' },
   { id: 3, label: 'Silver Sponsor' },
-  { id: 4, label: 'Community Partner' },
+  { id: 4, label: 'Silver Sponsor' },
+  { id: 5, label: 'Bronze Sponsor' },
+  { id: 6, label: 'Bronze Sponsor' },
 ];
 
 function BuildingIcon() {
@@ -34,6 +36,42 @@ function BuildingIcon() {
   );
 }
 
+const TIERS = [
+  {
+    name: 'Bronze',
+    price: '$250',
+    color: 'border-amber-700',
+    accentBg: 'bg-amber-700',
+    benefits: [
+      'Logo placement on game day jerseys',
+      'Donation receipt for tax purposes',
+    ],
+  },
+  {
+    name: 'Silver',
+    price: '$500',
+    color: 'border-gray-400',
+    accentBg: 'bg-gray-400',
+    benefits: [
+      'Everything in Bronze',
+      'Social media recognition and shout-outs',
+      'Donation receipt for tax purposes',
+    ],
+  },
+  {
+    name: 'Gold',
+    price: '$1,000',
+    color: 'border-sosa-orange',
+    accentBg: 'bg-sosa-orange',
+    benefits: [
+      'Everything in Silver',
+      'Hosted team event at your business',
+      'Custom promotional commercial',
+      'Donation receipt for tax purposes',
+    ],
+  },
+];
+
 export default function SponsorsPage() {
   return (
     <div className="bg-black text-white">
@@ -42,19 +80,101 @@ export default function SponsorsPage() {
       <section className="py-16 bg-sosa-dark border-b border-sosa-gray">
         <div className="max-w-6xl mx-auto px-4">
           <SectionHeading
-            title="Our Sponsors"
-            subtitle="SOSA Basketball is grateful for the support of our sponsors and partners who help make our programs possible."
+            title="Community Sponsorship"
+            subtitle="SOSA Basketball is a veteran-operated nonprofit that leverages basketball to develop young athletes in discipline, leadership, accountability, community service, and faith."
           />
         </div>
       </section>
 
-      {/* Sponsor Logo Grid */}
+      {/* What Your Support Enables */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-sosa-orange mb-3 text-center">
+            Your Impact
+          </h3>
+          <h2 className="text-3xl font-bold text-center mb-4">What Your Sponsorship Supports</h2>
+          <p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
+            Your support enables SOSA to provide structure and opportunity, developing emerging leaders both athletically and personally.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[
+              { label: 'Tournament Access', icon: '🏆' },
+              { label: 'Uniforms & Gear', icon: '👕' },
+              { label: 'Training Programs', icon: '🏀' },
+              { label: 'Mentorship', icon: '🤝' },
+              { label: 'Community Service', icon: '🌟' },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="bg-sosa-gray border border-gray-800 rounded-xl p-5 text-center hover:border-sosa-orange transition-colors"
+              >
+                <span className="text-3xl block mb-2" aria-hidden="true">{item.icon}</span>
+                <p className="text-white text-sm font-semibold">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Sponsorship Tiers */}
+      <section className="py-16 bg-sosa-dark">
+        <div className="max-w-6xl mx-auto px-4">
+          <SectionHeading
+            title="Sponsorship Tiers"
+            subtitle="Choose the level of partnership that works for you. Every dollar directly supports youth in our community."
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+            {TIERS.map((tier) => (
+              <div
+                key={tier.name}
+                className={`bg-black rounded-2xl border-2 ${tier.color} overflow-hidden flex flex-col`}
+              >
+                <div className={`${tier.accentBg} py-1`} />
+                <div className="p-8 flex-1 flex flex-col">
+                  <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-1">
+                    {tier.name}
+                  </h4>
+                  <p className="text-4xl font-black text-white mb-6">{tier.price}</p>
+                  <ul className="space-y-3 flex-1">
+                    {tier.benefits.map((benefit) => (
+                      <li key={benefit} className="flex items-start gap-3">
+                        <span className="text-sosa-orange mt-0.5 flex-shrink-0">&#10003;</span>
+                        <span className="text-gray-300 text-sm">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/sponsors/apply"
+                    className={`block text-center font-bold text-sm uppercase tracking-wide py-3 rounded-lg mt-6 transition-colors ${
+                      tier.name === 'Gold'
+                        ? 'bg-sosa-orange text-black hover:bg-orange-500'
+                        : 'border border-gray-600 text-gray-300 hover:border-sosa-orange hover:text-sosa-orange'
+                    }`}
+                  >
+                    Apply Now
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tax info */}
+          <div className="bg-sosa-gray border border-gray-800 rounded-xl p-6 text-center max-w-2xl mx-auto">
+            <p className="text-gray-300 text-sm leading-relaxed">
+              SOSA Basketball is a registered <span className="text-white font-semibold">501(c)(3) nonprofit organization</span>.
+              All sponsorship contributions may be tax-deductible. Sponsors receive donation receipts for their records.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Current Sponsors */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <h3 className="text-sm font-bold uppercase tracking-widest text-sosa-orange mb-8 text-center">
             Current Sponsors &amp; Partners
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {PLACEHOLDER_SPONSORS.map((sponsor) => (
               <div
                 key={sponsor.id}
@@ -71,42 +191,39 @@ export default function SponsorsPage() {
         </div>
       </section>
 
-      {/* Become a Sponsor CTA */}
+      {/* CTA + Download */}
       <section className="py-16 bg-sosa-dark">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <SectionHeading
-            title="Become a Sponsor"
-            subtitle="Partner with SOSA Basketball and invest in the next generation of leaders."
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-sosa-gray rounded-xl p-6 border border-gray-800">
-              <div className="w-10 h-1 bg-sosa-orange mb-4 mx-auto" />
-              <h4 className="text-lg font-bold uppercase tracking-wide mb-3">Community Visibility</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Your brand featured on our website, social media, uniforms, and event signage — reaching thousands of local families.
-              </p>
-            </div>
-            <div className="bg-sosa-gray rounded-xl p-6 border border-gray-800">
-              <div className="w-10 h-1 bg-sosa-orange mb-4 mx-auto" />
-              <h4 className="text-lg font-bold uppercase tracking-wide mb-3">Real Impact</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Your sponsorship directly funds program fees, equipment, and travel costs so that no athlete is turned away due to finances.
-              </p>
-            </div>
-            <div className="bg-sosa-gray rounded-xl p-6 border border-gray-800">
-              <div className="w-10 h-1 bg-sosa-orange mb-4 mx-auto" />
-              <h4 className="text-lg font-bold uppercase tracking-wide mb-3">Tax-Deductible</h4>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                SOSA Basketball is a faith-driven non-profit. Sponsorship contributions may be tax-deductible. Consult your tax advisor.
-              </p>
-            </div>
+          <h3 className="text-3xl font-bold mb-4">Ready to Partner With Us?</h3>
+          <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
+            Join the SOSA family and help us build the next generation of leaders — on and off the court.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              href="/sponsors/apply"
+              className="bg-sosa-orange hover:bg-orange-500 text-black font-bold uppercase tracking-wide px-10 py-4 rounded-lg transition-colors text-sm"
+            >
+              Apply to Sponsor
+            </Link>
+            <Link
+              href="https://docs.google.com/document/d/1QWijUtJKds5cl864idgzrYuZw8DCN2isMGb9npfS6YA/export?format=pdf"
+              target="_blank"
+              className="border border-gray-600 text-gray-300 hover:border-sosa-orange hover:text-sosa-orange font-bold uppercase tracking-wide px-10 py-4 rounded-lg transition-colors text-sm flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Download Sponsorship Packet
+            </Link>
           </div>
-          <Link
-            href="/contact"
-            className="inline-block bg-sosa-orange hover:bg-orange-600 text-black font-bold uppercase tracking-widest px-10 py-4 rounded-lg transition-colors duration-300 text-sm"
-          >
-            Contact Us to Sponsor
-          </Link>
+
+          {/* Contact */}
+          <div className="mt-12 bg-black border border-gray-800 rounded-xl p-6 inline-block text-left">
+            <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">Questions? Contact our Community Outreach Director</p>
+            <p className="text-white font-semibold">Verna Spivey</p>
+            <p className="text-gray-400 text-sm">(336) 405-7125</p>
+            <p className="text-gray-400 text-sm">squareonetigers@gmail.com</p>
+          </div>
         </div>
       </section>
 

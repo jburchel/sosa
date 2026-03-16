@@ -21,4 +21,4 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 RUN mkdir -p .next/cache && chown -R nextjs:nodejs .next/cache
 EXPOSE ${PORT:-3000}
-CMD ["sh", "-c", "mkdir -p data/waivers data/contacts data/images data/volunteers && node server.js"]
+CMD ["sh", "-c", "mkdir -p data/waivers data/contacts data/images data/volunteers data/sponsors && node server.js"]

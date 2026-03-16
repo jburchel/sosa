@@ -123,3 +123,52 @@ export async function sendVolunteerNotification(application: {
     console.error('Failed to send volunteer notification email:', error);
   }
 }
+
+const TIER_LABELS: Record<string, string> = {
+  bronze: 'Bronze ($250)',
+  silver: 'Silver ($500)',
+  gold: 'Gold ($1,000)',
+};
+
+export async function sendSponsorNotification(application: {
+  businessName: string;
+  contactName: string;
+  title?: string;
+  phone: string;
+  email: string;
+  address?: string;
+  cityStateZip?: string;
+  website?: string;
+  sponsorshipTier?: string;
+  message?: string;
+  submittedAt: string;
+}) {
+  try {
+    await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAILS,
+      subject: `New Sponsor Application: ${application.businessName}`,
+      html: `
+        <h2>New Sponsorship Application</h2>
+        <p><strong>Submitted at:</strong> ${new Date(application.submittedAt).toLocaleString()}</p>
+        <hr />
+        <h3>Business Information</h3>
+        <p><strong>Business Name:</strong> ${application.businessName}</p>
+        <p><strong>Contact Name:</strong> ${application.contactName}</p>
+        ${application.title ? `<p><strong>Title:</strong> ${application.title}</p>` : ''}
+        <p><strong>Phone:</strong> ${application.phone}</p>
+        <p><strong>Email:</strong> ${application.email}</p>
+        ${application.address ? `<p><strong>Address:</strong> ${application.address}</p>` : ''}
+        ${application.cityStateZip ? `<p><strong>City/State/Zip:</strong> ${application.cityStateZip}</p>` : ''}
+        ${application.website ? `<p><strong>Website:</strong> ${application.website}</p>` : ''}
+        <h3>Sponsorship Tier</h3>
+        <p>${application.sponsorshipTier ? TIER_LABELS[application.sponsorshipTier] || application.sponsorshipTier : 'Not selected'}</p>
+        ${application.message ? `<h3>Additional Comments</h3><p>${application.message}</p>` : ''}
+        <hr />
+        <p><em>This application was digitally signed and is stored in the SOSA admin dashboard.</em></p>
+      `,
+    });
+  } catch (error) {
+    console.error('Failed to send sponsor notification email:', error);
+  }
+}

@@ -47,7 +47,23 @@ interface Volunteer {
   submittedAt: string;
 }
 
-type Tab = 'waivers' | 'contacts' | 'volunteers' | 'images';
+interface Sponsor {
+  id: string;
+  businessName: string;
+  contactName: string;
+  title?: string;
+  phone: string;
+  email: string;
+  address?: string;
+  cityStateZip?: string;
+  website?: string;
+  sponsorshipTier?: string;
+  message?: string;
+  signature: string;
+  submittedAt: string;
+}
+
+type Tab = 'waivers' | 'contacts' | 'volunteers' | 'sponsors' | 'images';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-US', {
@@ -76,7 +92,7 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
 function LoginScreen({
   onLogin,
 }: {
-  onLogin: (waivers: Waiver[], contacts: Contact[], volunteers: Volunteer[]) => void;
+  onLogin: (waivers: Waiver[], contacts: Contact[], volunteers: Volunteer[], sponsors: Sponsor[]) => void;
 }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -102,17 +118,19 @@ function LoginScreen({
       }
 
       // Fetch all data sets after successful login
-      const [waiversRes, contactsRes, volunteersRes] = await Promise.all([
+      const [waiversRes, contactsRes, volunteersRes, sponsorsRes] = await Promise.all([
         fetch('/api/admin/waivers'),
         fetch('/api/admin/contacts'),
         fetch('/api/admin/volunteers'),
+        fetch('/api/admin/sponsors'),
       ]);
 
       const waiversData = waiversRes.ok ? await waiversRes.json() : { waivers: [] };
       const contactsData = contactsRes.ok ? await contactsRes.json() : { contacts: [] };
       const volunteersData = volunteersRes.ok ? await volunteersRes.json() : { volunteers: [] };
+      const sponsorsData = sponsorsRes.ok ? await sponsorsRes.json() : { sponsors: [] };
 
-      onLogin(waiversData.waivers ?? [], contactsData.contacts ?? [], volunteersData.volunteers ?? []);
+      onLogin(waiversData.waivers ?? [], contactsData.contacts ?? [], volunteersData.volunteers ?? [], sponsorsData.sponsors ?? []);
     } catch {
       setError('Connection error. Please try again.');
     } finally {
@@ -321,17 +339,75 @@ function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
   );
 }
 
+// ── Sponsor Card ─────────────────────────────────────────────────────────────
+
+const TIER_LABELS: Record<string, string> = {
+  bronze: 'Bronze ($250)',
+  silver: 'Silver ($500)',
+  gold: 'Gold ($1,000)',
+};
+
+function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="bg-sosa-gray border border-gray-800 rounded-lg overflow-hidden">
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full text-left px-5 py-4 flex items-start justify-between gap-4 hover:bg-gray-800/30 transition-colors"
+      >
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-white truncate">{sponsor.businessName}</p>
+          <p className="text-sm text-gray-400 mt-0.5">
+            {sponsor.contactName} &middot; {sponsor.sponsorshipTier ? TIER_LABELS[sponsor.sponsorshipTier] || sponsor.sponsorshipTier : 'No tier selected'}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">{formatDate(sponsor.submittedAt)}</p>
+        </div>
+        <span className="text-gray-400 text-lg mt-1 flex-shrink-0">
+          {expanded ? '▲' : '▼'}
+        </span>
+      </button>
+
+      {expanded && (
+        <div className="bg-sosa-dark border-t border-gray-800 px-5 py-5 space-y-3">
+          <DetailRow label="Business Name" value={sponsor.businessName} />
+          <DetailRow label="Contact Name" value={sponsor.contactName} />
+          <DetailRow label="Title" value={sponsor.title} />
+          <DetailRow label="Phone" value={sponsor.phone} />
+          <DetailRow label="Email" value={sponsor.email} />
+          <DetailRow label="Address" value={sponsor.address} />
+          <DetailRow label="City / State / Zip" value={sponsor.cityStateZip} />
+          <DetailRow label="Website" value={sponsor.website} />
+          <DetailRow label="Tier" value={sponsor.sponsorshipTier ? TIER_LABELS[sponsor.sponsorshipTier] || sponsor.sponsorshipTier : undefined} />
+          {sponsor.message && (
+            <div className="pt-1">
+              <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">Message</p>
+              <p className="text-white text-sm whitespace-pre-wrap leading-relaxed">
+                {sponsor.message}
+              </p>
+            </div>
+          )}
+          <DetailRow label="Signature" value={sponsor.signature} />
+          <DetailRow label="Submitted At" value={formatDate(sponsor.submittedAt)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 function Dashboard({
   waivers,
   contacts,
   volunteers,
+  sponsors,
   onLogout,
 }: {
   waivers: Waiver[];
   contacts: Contact[];
   volunteers: Volunteer[];
+  sponsors: Sponsor[];
   onLogout: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<Tab>('waivers');
@@ -363,11 +439,12 @@ function Dashboard({
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="flex border-b border-gray-800 mt-2">
-          {(['waivers', 'contacts', 'volunteers', 'images'] as Tab[]).map((tab) => {
+          {(['waivers', 'contacts', 'volunteers', 'sponsors', 'images'] as Tab[]).map((tab) => {
             const tabLabels: Record<Tab, string> = {
               waivers: 'Waivers',
               contacts: 'Messages',
               volunteers: 'Volunteers',
+              sponsors: 'Sponsors',
               images: 'Images',
             };
             return (
@@ -442,6 +519,24 @@ function Dashboard({
             </section>
           )}
 
+          {activeTab === 'sponsors' && (
+            <section>
+              <p className="text-gray-400 text-sm mb-5">
+                <span className="text-sosa-orange font-semibold">{sponsors.length}</span>{' '}
+                {sponsors.length === 1 ? 'application' : 'applications'} received
+              </p>
+              {sponsors.length === 0 ? (
+                <EmptyState message="No sponsor applications yet." />
+              ) : (
+                <div className="space-y-3">
+                  {sponsors.map((s) => (
+                    <SponsorCard key={s.id} sponsor={s} />
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
           {activeTab === 'images' && (
             <section>
               <ImageManager />
@@ -470,6 +565,7 @@ export default function AdminPage() {
   const [waivers, setWaivers] = useState<Waiver[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -480,15 +576,18 @@ export default function AdminPage() {
       }
       if (res.ok) {
         const waiversData = await res.json();
-        const [contactsRes, volunteersRes] = await Promise.all([
+        const [contactsRes, volunteersRes, sponsorsRes] = await Promise.all([
           fetch('/api/admin/contacts'),
           fetch('/api/admin/volunteers'),
+          fetch('/api/admin/sponsors'),
         ]);
         const contactsData = contactsRes.ok ? await contactsRes.json() : { contacts: [] };
         const volunteersData = volunteersRes.ok ? await volunteersRes.json() : { volunteers: [] };
+        const sponsorsData = sponsorsRes.ok ? await sponsorsRes.json() : { sponsors: [] };
         setWaivers(waiversData.waivers ?? []);
         setContacts(contactsData.contacts ?? []);
         setVolunteers(volunteersData.volunteers ?? []);
+        setSponsors(sponsorsData.sponsors ?? []);
         setAppState('dashboard');
       } else {
         setAppState('login');
@@ -507,13 +606,15 @@ export default function AdminPage() {
     setWaivers([]);
     setContacts([]);
     setVolunteers([]);
+    setSponsors([]);
     setAppState('login');
   }
 
-  function handleLogin(newWaivers: Waiver[], newContacts: Contact[], newVolunteers: Volunteer[]) {
+  function handleLogin(newWaivers: Waiver[], newContacts: Contact[], newVolunteers: Volunteer[], newSponsors: Sponsor[]) {
     setWaivers(newWaivers);
     setContacts(newContacts);
     setVolunteers(newVolunteers);
+    setSponsors(newSponsors);
     setAppState('dashboard');
   }
 
@@ -529,5 +630,5 @@ export default function AdminPage() {
     return <LoginScreen onLogin={handleLogin} />;
   }
 
-  return <Dashboard waivers={waivers} contacts={contacts} volunteers={volunteers} onLogout={handleLogout} />;
+  return <Dashboard waivers={waivers} contacts={contacts} volunteers={volunteers} sponsors={sponsors} onLogout={handleLogout} />;
 }
