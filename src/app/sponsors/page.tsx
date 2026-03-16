@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import SectionHeading from '@/components/SectionHeading';
 
@@ -8,13 +9,12 @@ export const metadata: Metadata = {
     'Support SOSA Basketball through community sponsorship. Learn about our Bronze, Silver, and Gold sponsorship tiers.',
 };
 
-const PLACEHOLDER_SPONSORS = [
+const OPEN_SLOTS = [
   { id: 1, label: 'Gold Sponsor' },
   { id: 2, label: 'Gold Sponsor' },
   { id: 3, label: 'Silver Sponsor' },
-  { id: 4, label: 'Silver Sponsor' },
+  { id: 4, label: 'Bronze Sponsor' },
   { id: 5, label: 'Bronze Sponsor' },
-  { id: 6, label: 'Bronze Sponsor' },
 ];
 
 function BuildingIcon() {
@@ -168,24 +168,58 @@ export default function SponsorsPage() {
         </div>
       </section>
 
-      {/* Current Sponsors */}
+      {/* Featured Sponsor */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
           <h3 className="text-sm font-bold uppercase tracking-widest text-sosa-orange mb-8 text-center">
-            Current Sponsors &amp; Partners
+            Our Sponsors
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {PLACEHOLDER_SPONSORS.map((sponsor) => (
-              <div
-                key={sponsor.id}
-                className="bg-sosa-gray border border-gray-800 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:border-sosa-orange transition-colors duration-300 min-h-[180px]"
+
+          {/* Parks GMC - Silver Sponsor */}
+          <div className="max-w-3xl mx-auto mb-16">
+            <div className="bg-sosa-gray border-2 border-gray-400 rounded-2xl overflow-hidden">
+              <div className="h-1.5 bg-gray-400" />
+              <div className="p-6">
+                <div className="relative w-full aspect-video rounded-xl overflow-hidden">
+                  <Image
+                    src="/images/parks-gmc-sponsor.png"
+                    alt="Parks GMC Kernersville — Silver Tier Sponsor of SOSA Basketball"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 768px"
+                    priority
+                  />
+                </div>
+                <div className="mt-4 text-center">
+                  <span className="inline-block bg-gray-400/20 border border-gray-400 text-gray-300 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
+                    Silver Tier Sponsor
+                  </span>
+                  <h4 className="text-2xl font-bold text-white mt-3">Parks GMC Kernersville</h4>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Thank you for your generous support of SOSA Basketball!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Open Sponsor Slots */}
+          <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6 text-center">
+            Sponsor Slots Available
+          </h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {OPEN_SLOTS.map((slot) => (
+              <Link
+                key={slot.id}
+                href="/sponsors/apply"
+                className="bg-sosa-gray border border-gray-800 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-sosa-orange transition-colors duration-300 min-h-[140px] group"
               >
                 <BuildingIcon />
-                <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">
+                <p className="text-gray-500 text-xs font-medium uppercase tracking-wide group-hover:text-sosa-orange transition-colors">
                   Your Logo Here
                 </p>
-                <p className="text-gray-600 text-xs mt-1">{sponsor.label}</p>
-              </div>
+                <p className="text-gray-600 text-xs mt-1">{slot.label}</p>
+              </Link>
             ))}
           </div>
         </div>
