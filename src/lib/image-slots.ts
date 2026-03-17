@@ -44,16 +44,13 @@ export const IMAGE_SLOTS: ImageSlot[] = [
 
 // ── Manifest ─────────────────────────────────────────────────────────────────
 
-export const GALLERY_ALBUMS = [
-  'All',
+export const DEFAULT_ALBUMS = [
   'Game Action',
   'Practice & Training',
   'Team Photos',
   'Community',
   'Brand & Logos',
-] as const;
-
-export type GalleryAlbum = (typeof GALLERY_ALBUMS)[number];
+];
 
 export interface GalleryImage {
   filename: string;
@@ -65,6 +62,7 @@ export interface GalleryImage {
 export interface ImageManifest {
   slotOverrides: Record<string, string>; // slotId -> filename in /data/images/
   galleryImages: GalleryImage[];
+  customAlbums?: string[];
 }
 
 const IMAGES_DIR = path.join(process.cwd(), 'data', 'images');

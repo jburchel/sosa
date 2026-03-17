@@ -102,6 +102,28 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// PATCH — update custom albums
+export async function PATCH(request: NextRequest) {
+  if (!isAuthed(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { customAlbums } = await request.json();
+    if (!Array.isArray(customAlbums)) {
+      return NextResponse.json({ error: 'Invalid albums' }, { status: 400 });
+    }
+
+    const manifest = await getManifest();
+    manifest.customAlbums = customAlbums.filter((a: unknown) => typeof a === 'string' && a.trim());
+    await saveManifest(manifest);
+    return NextResponse.json({ success: true, manifest });
+  } catch (error) {
+    console.error('Album update error:', error);
+    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+  }
+}
+
 // DELETE — remove a gallery image or revert a slot override
 export async function DELETE(request: NextRequest) {
   if (!isAuthed(request)) {

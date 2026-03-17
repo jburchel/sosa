@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getManifest, IMAGE_SLOTS, GALLERY_ALBUMS } from '@/lib/image-slots';
+import { getManifest, IMAGE_SLOTS, DEFAULT_ALBUMS } from '@/lib/image-slots';
 import GalleryGrid from '@/components/GalleryGrid';
 
 export const metadata: Metadata = {
@@ -58,7 +58,12 @@ export default async function GalleryPage() {
   }));
 
   const allImages = [...BASE_GALLERY_IMAGES, ...slotOverrideImages, ...uploadedImages];
-  const albums = GALLERY_ALBUMS as unknown as string[];
+
+  // Build album list: "All" + defaults + any custom albums from manifest
+  const customAlbums = manifest.customAlbums || [];
+  const allAlbumNames = new Set([...DEFAULT_ALBUMS, ...customAlbums, ...allImages.map((img) => img.album)]);
+  allAlbumNames.delete('All');
+  const albums = ['All', ...Array.from(allAlbumNames).sort()];
 
   return (
     <div className="bg-black text-white">

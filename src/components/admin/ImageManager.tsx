@@ -19,11 +19,12 @@ interface GalleryImage {
 interface ImageManifest {
   slotOverrides: Record<string, string>;
   galleryImages: GalleryImage[];
+  customAlbums?: string[];
 }
 
 type Section = 'slots' | 'gallery';
 
-const ALBUM_OPTIONS = [
+const DEFAULT_ALBUMS = [
   'Game Action',
   'Practice & Training',
   'Team Photos',
@@ -132,9 +133,9 @@ interface PendingFile {
   alt: string;
 }
 
-function GalleryBatchUploadForm({ onUpload }: { onUpload: (file: File, alt: string, album: string) => Promise<void> }) {
+function GalleryBatchUploadForm({ albumOptions, onUpload }: { albumOptions: string[]; onUpload: (file: File, alt: string, album: string) => Promise<void> }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [album, setAlbum] = useState(ALBUM_OPTIONS[0]);
+  const [album, setAlbum] = useState(albumOptions[0] || 'Game Action');
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -196,7 +197,7 @@ function GalleryBatchUploadForm({ onUpload }: { onUpload: (file: File, alt: stri
             onChange={(e) => setAlbum(e.target.value)}
             className="w-full bg-sosa-dark border border-gray-700 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-sosa-orange transition-colors"
           >
-            {ALBUM_OPTIONS.map((a) => (
+            {albumOptions.map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
           </select>
@@ -361,6 +362,11 @@ export default function ImageManager() {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [batchDeleting, setBatchDeleting] = useState(false);
+  const [newAlbumName, setNewAlbumName] = useState('');
+
+  // Compute full album list from defaults + custom
+  const allAlbums = [...DEFAULT_ALBUMS, ...(manifest.customAlbums || [])];
+  const uniqueAlbums = Array.from(new Set(allAlbums)).sort();
 
   useEffect(() => {
     fetchData();
@@ -461,6 +467,41 @@ export default function ImageManager() {
     setSelected(new Set());
   }
 
+  async function handleAddAlbum() {
+    const name = newAlbumName.trim();
+    if (!name) return;
+    if (uniqueAlbums.includes(name)) {
+      alert('Album already exists');
+      return;
+    }
+    const updated = { ...manifest, customAlbums: [...(manifest.customAlbums || []), name] };
+    // Save via a PATCH-like approach: POST with action 'update-albums'
+    const res = await fetch('/api/admin/images', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customAlbums: updated.customAlbums }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setManifest(data.manifest);
+    }
+    setNewAlbumName('');
+  }
+
+  async function handleDeleteAlbum(albumName: string) {
+    if (!confirm(`Delete album "${albumName}"? Images in this album will remain but be uncategorized.`)) return;
+    const updated = (manifest.customAlbums || []).filter((a) => a !== albumName);
+    const res = await fetch('/api/admin/images', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customAlbums: updated }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setManifest(data.manifest);
+    }
+  }
+
   async function handleBatchDelete() {
     if (selected.size === 0) return;
     if (!confirm(`Delete ${selected.size} selected image${selected.size > 1 ? 's' : ''}?`)) return;
@@ -555,7 +596,51 @@ export default function ImageManager() {
             Add images to the public gallery. Select an album, choose multiple files, and upload in batch.
           </p>
 
-          <GalleryBatchUploadForm onUpload={handleGalleryUpload} />
+          {/* Album Management */}
+          <div className="bg-sosa-gray border border-gray-800 rounded-lg p-4 mb-6">
+            <h4 className="font-semibold text-white text-sm mb-3">Albums</h4>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {uniqueAlbums.map((album) => {
+                const isCustom = (manifest.customAlbums || []).includes(album);
+                return (
+                  <span
+                    key={album}
+                    className="inline-flex items-center gap-1.5 bg-sosa-dark border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-full"
+                  >
+                    {album}
+                    {isCustom && (
+                      <button
+                        onClick={() => handleDeleteAlbum(album)}
+                        className="text-gray-500 hover:text-red-400 transition-colors ml-0.5"
+                        title="Delete album"
+                      >
+                        &times;
+                      </button>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newAlbumName}
+                onChange={(e) => setNewAlbumName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddAlbum()}
+                placeholder="New album name"
+                className="flex-1 bg-sosa-dark border border-gray-700 rounded px-3 py-1.5 text-white text-xs placeholder-gray-600 focus:outline-none focus:border-sosa-orange transition-colors"
+              />
+              <button
+                onClick={handleAddAlbum}
+                disabled={!newAlbumName.trim()}
+                className="bg-sosa-orange hover:bg-orange-500 disabled:opacity-50 text-black font-semibold text-xs px-3 py-1.5 rounded transition-colors"
+              >
+                Add Album
+              </button>
+            </div>
+          </div>
+
+          <GalleryBatchUploadForm albumOptions={uniqueAlbums} onUpload={handleGalleryUpload} />
 
           {manifest.galleryImages.length > 0 && (
             <div>
