@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
     const action = formData.get('action') as string;
     const slotId = formData.get('slotId') as string | null;
     const alt = formData.get('alt') as string | null;
+    const album = formData.get('album') as string | null;
 
     if (!file || !(file instanceof File)) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -88,6 +89,7 @@ export async function POST(request: NextRequest) {
       manifest.galleryImages.push({
         filename,
         alt: alt || 'Gallery image',
+        album: album || 'All',
         addedAt: new Date().toISOString(),
       });
     }

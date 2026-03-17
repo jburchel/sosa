@@ -44,9 +44,21 @@ export const IMAGE_SLOTS: ImageSlot[] = [
 
 // ── Manifest ─────────────────────────────────────────────────────────────────
 
+export const GALLERY_ALBUMS = [
+  'All',
+  'Game Action',
+  'Practice & Training',
+  'Team Photos',
+  'Community',
+  'Brand & Logos',
+] as const;
+
+export type GalleryAlbum = (typeof GALLERY_ALBUMS)[number];
+
 export interface GalleryImage {
   filename: string;
   alt: string;
+  album: string;
   addedAt: string;
 }
 

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
-import SectionHeading from '@/components/SectionHeading';
-import { getManifest, IMAGE_SLOTS } from '@/lib/image-slots';
+import { getManifest, IMAGE_SLOTS, GALLERY_ALBUMS } from '@/lib/image-slots';
+import GalleryGrid from '@/components/GalleryGrid';
 
 export const metadata: Metadata = {
   title: 'Gallery | SOSA Basketball',
@@ -10,147 +9,56 @@ export const metadata: Metadata = {
 };
 
 const BASE_GALLERY_IMAGES = [
-  // Action shots — live game and training photography
-  {
-    src: '/images/boys-game-action-1.png',
-    alt: 'Boys Tigers Game Action',
-    width: 800,
-    height: 800,
-  },
-  {
-    src: '/images/boys-game-action-2.png',
-    alt: 'Boys Tigers Team Action',
-    width: 800,
-    height: 800,
-  },
-  {
-    src: '/images/boys-game-action-3.png',
-    alt: 'Boys Tigers Dunk and Layup',
-    width: 800,
-    height: 800,
-  },
-  {
-    src: '/images/girls-game-action-1.png',
-    alt: 'Lady Tigers Game Action',
-    width: 800,
-    height: 800,
-  },
-  {
-    src: '/images/girls-game-action-2.png',
-    alt: 'Lady Tigers More Action',
-    width: 800,
-    height: 800,
-  },
-  {
-    src: '/images/practice-action.jpg',
-    alt: 'Players Training in Orange Uniforms',
-    width: 800,
-    height: 600,
-  },
-  {
-    src: '/images/basketball-training.jpg',
-    alt: 'Players Scrimmaging in Gym',
-    width: 800,
-    height: 600,
-  },
-  {
-    src: '/images/player-portrait.png',
-    alt: 'SOSA Player Portrait',
-    width: 800,
-    height: 1000,
-  },
-  // Community & brand imagery
-  {
-    src: '/images/community.jpg',
-    alt: 'SOSA Community',
-    width: 800,
-    height: 600,
-  },
-  {
-    src: '/images/heart-of-tiger.jpg',
-    alt: 'Heart of a Tiger',
-    width: 800,
-    height: 800,
-  },
-  {
-    src: '/images/tiger-mascot.jpg',
-    alt: 'SOSA Tiger Mascot',
-    width: 800,
-    height: 800,
-  },
-  {
-    src: '/images/daily-affirmation.png',
-    alt: 'Daily Affirmation',
-    width: 600,
-    height: 600,
-  },
-  {
-    src: '/images/sosa-tigers-badge.png',
-    alt: 'SOSA Tigers Badge',
-    width: 600,
-    height: 600,
-  },
-  {
-    src: '/images/sosa-lady-tigers.png',
-    alt: 'SOSA Lady Tigers',
-    width: 600,
-    height: 600,
-  },
-  {
-    src: '/images/lady-tigers-alt.png',
-    alt: 'Lady Tigers Alternate',
-    width: 600,
-    height: 600,
-  },
-  {
-    src: '/images/tiger-basketball.png',
-    alt: 'Tiger Basketball',
-    width: 600,
-    height: 600,
-  },
-  {
-    src: '/images/pink-tiger-dark.png',
-    alt: 'Pink Tiger Dark',
-    width: 600,
-    height: 600,
-  },
-  {
-    src: '/images/pink-tiger-light.png',
-    alt: 'Pink Tiger Light',
-    width: 600,
-    height: 600,
-  },
-  {
-    src: '/images/s1-logo.png',
-    alt: 'Square One Sports Academy Logo',
-    width: 600,
-    height: 600,
-  },
+  // Game Action
+  { src: '/images/boys-game-action-1.png', alt: 'Boys Tigers Game Action', album: 'Game Action' },
+  { src: '/images/boys-game-action-2.png', alt: 'Boys Tigers Team Action', album: 'Game Action' },
+  { src: '/images/boys-game-action-3.png', alt: 'Boys Tigers Dunk and Layup', album: 'Game Action' },
+  { src: '/images/girls-game-action-1.png', alt: 'Lady Tigers Game Action', album: 'Game Action' },
+  { src: '/images/girls-game-action-2.png', alt: 'Lady Tigers More Action', album: 'Game Action' },
+
+  // Practice & Training
+  { src: '/images/practice-action.jpg', alt: 'Players Training in Orange Uniforms', album: 'Practice & Training' },
+  { src: '/images/basketball-training.jpg', alt: 'Players Scrimmaging in Gym', album: 'Practice & Training' },
+  { src: '/images/player-portrait.png', alt: 'SOSA Player Portrait', album: 'Practice & Training' },
+
+  // Community
+  { src: '/images/community.jpg', alt: 'SOSA Community', album: 'Community' },
+  { src: '/images/heart-of-tiger.jpg', alt: 'Heart of a Tiger', album: 'Community' },
+  { src: '/images/tiger-mascot.jpg', alt: 'SOSA Tiger Mascot', album: 'Community' },
+  { src: '/images/daily-affirmation.png', alt: 'Daily Affirmation', album: 'Community' },
+
+  // Brand & Logos
+  { src: '/images/sosa-tigers-badge.png', alt: 'SOSA Tigers Badge', album: 'Brand & Logos' },
+  { src: '/images/sosa-lady-tigers.png', alt: 'SOSA Lady Tigers', album: 'Brand & Logos' },
+  { src: '/images/lady-tigers-alt.png', alt: 'Lady Tigers Alternate', album: 'Brand & Logos' },
+  { src: '/images/tiger-basketball.png', alt: 'Tiger Basketball', album: 'Brand & Logos' },
+  { src: '/images/pink-tiger-dark.png', alt: 'Pink Tiger Dark', album: 'Brand & Logos' },
+  { src: '/images/pink-tiger-light.png', alt: 'Pink Tiger Light', album: 'Brand & Logos' },
+  { src: '/images/s1-logo.png', alt: 'Square One Sports Academy Logo', album: 'Brand & Logos' },
 ];
 
 export default async function GalleryPage() {
   const manifest = await getManifest();
 
-  // Slot replacement images (admin-uploaded replacements for app images)
+  // Slot replacement images
   const slotOverrideImages = Object.entries(manifest.slotOverrides).map(([slotId, filename]) => {
     const slot = IMAGE_SLOTS.find((s) => s.id === slotId);
     return {
       src: `/api/images/${filename}`,
       alt: slot ? `${slot.label} (${slot.usedIn})` : 'Uploaded image',
-      width: 800,
-      height: 800,
+      album: 'Team Photos',
     };
   });
 
-  // Gallery additions (admin-uploaded new gallery images)
+  // Gallery additions
   const uploadedImages = manifest.galleryImages.map((g) => ({
     src: `/api/images/${g.filename}`,
     alt: g.alt,
-    width: 800,
-    height: 800,
+    album: g.album || 'All',
   }));
 
   const allImages = [...BASE_GALLERY_IMAGES, ...slotOverrideImages, ...uploadedImages];
+  const albums = GALLERY_ALBUMS as unknown as string[];
 
   return (
     <div className="bg-black text-white">
@@ -158,33 +66,19 @@ export default async function GalleryPage() {
       {/* Page Header */}
       <section className="py-16 bg-sosa-dark border-b border-sosa-gray">
         <div className="max-w-6xl mx-auto px-4">
-          <SectionHeading
-            title="Gallery"
-            subtitle="Game photos, team photos, and community events. More coming soon!"
-          />
+          <div className="text-center">
+            <h2 className="text-4xl font-bold uppercase tracking-tight mb-4">Gallery</h2>
+            <p className="text-gray-400 text-lg">
+              Game photos, team photos, and community events. More coming soon!
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Photo Grid */}
+      {/* Photo Grid with Album Filters */}
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {allImages.map((image) => (
-              <div
-                key={image.src}
-                className="rounded-lg overflow-hidden bg-sosa-gray border border-gray-800 hover:border-sosa-orange transition-all duration-300 hover:scale-105 aspect-square relative"
-              >
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  unoptimized={image.src.startsWith('/api/')}
-                />
-              </div>
-            ))}
-          </div>
+          <GalleryGrid images={allImages} albums={albums} />
         </div>
       </section>
 
