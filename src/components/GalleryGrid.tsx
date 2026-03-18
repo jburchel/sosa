@@ -7,6 +7,7 @@ interface GalleryImage {
   src: string;
   alt: string;
   album: string;
+  key?: string;
 }
 
 export default function GalleryGrid({

@@ -9,6 +9,12 @@ interface ImageSlot {
   usedIn: string;
 }
 
+interface BaseGalleryImage {
+  src: string;
+  alt: string;
+  album: string;
+}
+
 interface GalleryImage {
   filename: string;
   alt: string;
@@ -20,6 +26,9 @@ interface ImageManifest {
   slotOverrides: Record<string, string>;
   galleryImages: GalleryImage[];
   customAlbums?: string[];
+  hiddenBaseImages?: string[];
+  albumOrder?: string[];
+  imageOrder?: string[];
 }
 
 type Section = 'slots' | 'gallery';
@@ -32,6 +41,9 @@ const DEFAULT_ALBUMS = [
   'Brand & Logos',
 ];
 
+function baseImageKey(src: string) { return `base:${src}`; }
+function uploadImageKey(filename: string) { return `upload:${filename}`; }
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-US', {
     year: 'numeric',
@@ -40,6 +52,26 @@ function formatDate(iso: string) {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+// ── Arrow Button ──────────────────────────────────────────────────────────────
+
+function ArrowButton({ direction, onClick, disabled, title }: {
+  direction: 'up' | 'down';
+  onClick: () => void;
+  disabled?: boolean;
+  title?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      className="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-sosa-orange disabled:opacity-25 disabled:hover:text-gray-400 transition-colors"
+    >
+      {direction === 'up' ? '\u25B2' : '\u25BC'}
+    </button>
+  );
 }
 
 // ── Slot Card ────────────────────────────────────────────────────────────────
@@ -283,12 +315,20 @@ function GalleryCard({
   selectMode,
   onToggleSelect,
   onDelete,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
 }: {
   image: GalleryImage;
   selected: boolean;
   selectMode: boolean;
   onToggleSelect: (filename: string) => void;
   onDelete: (filename: string) => Promise<void>;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
 }) {
   const [deleting, setDeleting] = useState(false);
 
@@ -321,6 +361,13 @@ function GalleryCard({
           {selected && <span className="text-black text-xs font-bold">&#10003;</span>}
         </button>
       )}
+      {/* Reorder arrows overlay */}
+      {!selectMode && (
+        <div className="absolute top-1 right-1 z-10 flex flex-col bg-black/60 rounded">
+          <ArrowButton direction="up" onClick={onMoveUp} disabled={isFirst} title="Move up" />
+          <ArrowButton direction="down" onClick={onMoveDown} disabled={isLast} title="Move down" />
+        </div>
+      )}
       <div
         className="aspect-square bg-black cursor-pointer"
         onClick={() => selectMode && onToggleSelect(image.filename)}
@@ -351,10 +398,78 @@ function GalleryCard({
   );
 }
 
+// ── Base Image Card ──────────────────────────────────────────────────────────
+
+function BaseImageCard({
+  image,
+  hidden,
+  onToggleHide,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
+}: {
+  image: BaseGalleryImage;
+  hidden: boolean;
+  onToggleHide: (src: string) => Promise<void>;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
+}) {
+  const [toggling, setToggling] = useState(false);
+
+  async function handleToggle() {
+    setToggling(true);
+    try {
+      await onToggleHide(image.src);
+    } finally {
+      setToggling(false);
+    }
+  }
+
+  return (
+    <div className={`bg-sosa-gray border rounded-lg overflow-hidden relative ${hidden ? 'opacity-50 border-red-800' : 'border-gray-800'}`}>
+      {/* Reorder arrows */}
+      {!hidden && (
+        <div className="absolute top-1 right-1 z-10 flex flex-col bg-black/60 rounded">
+          <ArrowButton direction="up" onClick={onMoveUp} disabled={isFirst} title="Move up" />
+          <ArrowButton direction="down" onClick={onMoveDown} disabled={isLast} title="Move down" />
+        </div>
+      )}
+      {hidden && (
+        <span className="absolute top-2 left-2 z-10 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+          Hidden
+        </span>
+      )}
+      <div className="aspect-square bg-black">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={image.src} alt={image.alt} className="w-full h-full object-cover" />
+      </div>
+      <div className="p-3">
+        <p className="text-white text-xs truncate">{image.alt}</p>
+        <p className="text-gray-500 text-xs mt-0.5">{image.album}</p>
+        <button
+          onClick={handleToggle}
+          disabled={toggling}
+          className={`mt-2 w-full text-xs py-1.5 border rounded transition-colors disabled:opacity-50 ${
+            hidden
+              ? 'border-green-600 text-green-400 hover:border-green-400 hover:text-green-300'
+              : 'border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-400'
+          }`}
+        >
+          {toggling ? '...' : hidden ? 'Show in Gallery' : 'Hide from Gallery'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function ImageManager() {
   const [slots, setSlots] = useState<ImageSlot[]>([]);
+  const [baseGalleryImages, setBaseGalleryImages] = useState<BaseGalleryImage[]>([]);
   const [manifest, setManifest] = useState<ImageManifest>({ slotOverrides: {}, galleryImages: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -366,7 +481,44 @@ export default function ImageManager() {
 
   // Compute full album list from defaults + custom
   const allAlbums = [...DEFAULT_ALBUMS, ...(manifest.customAlbums || [])];
-  const uniqueAlbums = Array.from(new Set(allAlbums)).sort();
+  const uniqueAlbums = Array.from(new Set(allAlbums));
+
+  // Sort albums by albumOrder if set, otherwise alphabetically
+  const albumOrder = manifest.albumOrder;
+  const sortedAlbums = [...uniqueAlbums].sort((a, b) => {
+    if (albumOrder && albumOrder.length > 0) {
+      const aIdx = albumOrder.indexOf(a);
+      const bIdx = albumOrder.indexOf(b);
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+    }
+    return a.localeCompare(b);
+  });
+
+  // Build ordered list of all image keys for reordering
+  const hiddenSet = new Set(manifest.hiddenBaseImages || []);
+  const visibleBaseImages = baseGalleryImages.filter((img) => !hiddenSet.has(img.src));
+
+  // Get ordered images based on imageOrder
+  function getOrderedImageKeys(): string[] {
+    const allKeys = [
+      ...visibleBaseImages.map((img) => baseImageKey(img.src)),
+      ...manifest.galleryImages.map((g) => uploadImageKey(g.filename)),
+    ];
+    const order = manifest.imageOrder;
+    if (!order || order.length === 0) return allKeys;
+
+    const orderMap = new Map(order.map((key, idx) => [key, idx]));
+    return [...allKeys].sort((a, b) => {
+      const aIdx = orderMap.get(a);
+      const bIdx = orderMap.get(b);
+      if (aIdx !== undefined && bIdx !== undefined) return aIdx - bIdx;
+      if (aIdx !== undefined) return -1;
+      if (bIdx !== undefined) return 1;
+      return 0;
+    });
+  }
 
   useEffect(() => {
     fetchData();
@@ -379,6 +531,7 @@ export default function ImageManager() {
       const data = await res.json();
       setSlots(data.slots);
       setManifest(data.manifest);
+      setBaseGalleryImages(data.baseGalleryImages || []);
     } catch {
       setError('Failed to load image data');
     } finally {
@@ -450,6 +603,20 @@ export default function ImageManager() {
     setSelected((prev) => { const next = new Set(prev); next.delete(filename); return next; });
   }
 
+  async function handleToggleBaseImageHide(src: string) {
+    const hidden = (manifest.hiddenBaseImages || []).includes(src);
+    const action = hidden ? 'unhide-base-image' : 'hide-base-image';
+    const res = await fetch('/api/admin/images', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, src }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setManifest(data.manifest);
+    }
+  }
+
   function toggleSelect(filename: string) {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -475,7 +642,6 @@ export default function ImageManager() {
       return;
     }
     const updated = { ...manifest, customAlbums: [...(manifest.customAlbums || []), name] };
-    // Save via a PATCH-like approach: POST with action 'update-albums'
     const res = await fetch('/api/admin/images', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -517,6 +683,46 @@ export default function ImageManager() {
     setSelectMode(false);
   }
 
+  // ── Album Reorder ──────────────────────────────────────────────────────────
+
+  async function moveAlbum(index: number, direction: 'up' | 'down') {
+    const newOrder = [...sortedAlbums];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newOrder.length) return;
+    [newOrder[index], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[index]];
+
+    const res = await fetch('/api/admin/images', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'reorder-albums', albumOrder: newOrder }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setManifest(data.manifest);
+    }
+  }
+
+  // ── Image Reorder ──────────────────────────────────────────────────────────
+
+  async function moveImage(imageKey: string, direction: 'up' | 'down') {
+    const orderedKeys = getOrderedImageKeys();
+    const index = orderedKeys.indexOf(imageKey);
+    if (index === -1) return;
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= orderedKeys.length) return;
+    [orderedKeys[index], orderedKeys[targetIndex]] = [orderedKeys[targetIndex], orderedKeys[index]];
+
+    const res = await fetch('/api/admin/images', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'reorder-images', imageOrder: orderedKeys }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setManifest(data.manifest);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
@@ -542,6 +748,9 @@ export default function ImageManager() {
     },
     {} as Record<string, ImageSlot[]>
   );
+
+  // Build ordered combined image list for the "All Images" section
+  const orderedKeys = getOrderedImageKeys();
 
   return (
     <div>
@@ -593,31 +802,45 @@ export default function ImageManager() {
       {section === 'gallery' && (
         <div>
           <p className="text-gray-400 text-sm mb-6">
-            Add images to the public gallery. Select an album, choose multiple files, and upload in batch.
+            Manage gallery images, albums, and display order. Use arrows to reorder, hide/show base images, and delete uploaded images.
           </p>
 
-          {/* Album Management */}
+          {/* Album Management with Reorder */}
           <div className="bg-sosa-gray border border-gray-800 rounded-lg p-4 mb-6">
-            <h4 className="font-semibold text-white text-sm mb-3">Albums</h4>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {uniqueAlbums.map((album) => {
+            <h4 className="font-semibold text-white text-sm mb-3">Albums (drag to reorder)</h4>
+            <div className="space-y-1 mb-3">
+              {sortedAlbums.map((album, index) => {
                 const isCustom = (manifest.customAlbums || []).includes(album);
                 return (
-                  <span
+                  <div
                     key={album}
-                    className="inline-flex items-center gap-1.5 bg-sosa-dark border border-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-full"
+                    className="flex items-center gap-2 bg-sosa-dark border border-gray-700 text-gray-300 text-xs px-3 py-2 rounded"
                   >
-                    {album}
+                    <div className="flex flex-col">
+                      <ArrowButton
+                        direction="up"
+                        onClick={() => moveAlbum(index, 'up')}
+                        disabled={index === 0}
+                        title="Move up"
+                      />
+                      <ArrowButton
+                        direction="down"
+                        onClick={() => moveAlbum(index, 'down')}
+                        disabled={index === sortedAlbums.length - 1}
+                        title="Move down"
+                      />
+                    </div>
+                    <span className="flex-1">{album}</span>
                     {isCustom && (
                       <button
                         onClick={() => handleDeleteAlbum(album)}
-                        className="text-gray-500 hover:text-red-400 transition-colors ml-0.5"
+                        className="text-gray-500 hover:text-red-400 transition-colors"
                         title="Delete album"
                       >
                         &times;
                       </button>
                     )}
-                  </span>
+                  </div>
                 );
               })}
             </div>
@@ -640,8 +863,38 @@ export default function ImageManager() {
             </div>
           </div>
 
-          <GalleryBatchUploadForm albumOptions={uniqueAlbums} onUpload={handleGalleryUpload} />
+          <GalleryBatchUploadForm albumOptions={sortedAlbums} onUpload={handleGalleryUpload} />
 
+          {/* Base Gallery Images */}
+          <div className="mb-8">
+            <h4 className="text-sm font-bold uppercase tracking-wider text-sosa-orange mb-1">
+              Base Images ({baseGalleryImages.length})
+            </h4>
+            <p className="text-gray-500 text-xs mb-3">
+              These are the original images shipped with the site. You can hide them from the public gallery.
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {baseGalleryImages.map((image) => {
+                const key = baseImageKey(image.src);
+                const isHidden = hiddenSet.has(image.src);
+                const visibleIndex = isHidden ? -1 : orderedKeys.indexOf(key);
+                return (
+                  <BaseImageCard
+                    key={image.src}
+                    image={image}
+                    hidden={isHidden}
+                    onToggleHide={handleToggleBaseImageHide}
+                    onMoveUp={() => moveImage(key, 'up')}
+                    onMoveDown={() => moveImage(key, 'down')}
+                    isFirst={visibleIndex <= 0}
+                    isLast={isHidden || visibleIndex === orderedKeys.length - 1}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Uploaded Gallery Images */}
           {manifest.galleryImages.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -681,16 +934,24 @@ export default function ImageManager() {
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {manifest.galleryImages.map((image) => (
-                  <GalleryCard
-                    key={image.filename}
-                    image={image}
-                    selected={selected.has(image.filename)}
-                    selectMode={selectMode}
-                    onToggleSelect={toggleSelect}
-                    onDelete={handleGalleryDelete}
-                  />
-                ))}
+                {manifest.galleryImages.map((image) => {
+                  const key = uploadImageKey(image.filename);
+                  const orderIdx = orderedKeys.indexOf(key);
+                  return (
+                    <GalleryCard
+                      key={image.filename}
+                      image={image}
+                      selected={selected.has(image.filename)}
+                      selectMode={selectMode}
+                      onToggleSelect={toggleSelect}
+                      onDelete={handleGalleryDelete}
+                      onMoveUp={() => moveImage(key, 'up')}
+                      onMoveDown={() => moveImage(key, 'down')}
+                      isFirst={orderIdx <= 0}
+                      isLast={orderIdx === orderedKeys.length - 1}
+                    />
+                  );
+                })}
               </div>
             </div>
           )}

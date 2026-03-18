@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { getManifest, saveManifest, getImagesDir, IMAGE_SLOTS } from '@/lib/image-slots';
+import { getManifest, saveManifest, getImagesDir, IMAGE_SLOTS, BASE_GALLERY_IMAGES, baseImageKey, uploadImageKey } from '@/lib/image-slots';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
@@ -11,14 +11,14 @@ function isAuthed(request: NextRequest) {
   return token === process.env.ADMIN_PASSWORD;
 }
 
-// GET — return manifest + slot definitions
+// GET — return manifest + slot definitions + base gallery images
 export async function GET(request: NextRequest) {
   if (!isAuthed(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const manifest = await getManifest();
-  return NextResponse.json({ manifest, slots: IMAGE_SLOTS });
+  return NextResponse.json({ manifest, slots: IMAGE_SLOTS, baseGalleryImages: BASE_GALLERY_IMAGES });
 }
 
 // POST — upload image (slot replacement or gallery addition)
@@ -102,24 +102,80 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PATCH — update custom albums
+// PATCH — update manifest settings (albums, visibility, ordering)
 export async function PATCH(request: NextRequest) {
   if (!isAuthed(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const { customAlbums } = await request.json();
-    if (!Array.isArray(customAlbums)) {
-      return NextResponse.json({ error: 'Invalid albums' }, { status: 400 });
+    const body = await request.json();
+    const { action } = body;
+    const manifest = await getManifest();
+
+    // Legacy: no action field means custom albums update
+    if (!action) {
+      const { customAlbums } = body;
+      if (!Array.isArray(customAlbums)) {
+        return NextResponse.json({ error: 'Invalid albums' }, { status: 400 });
+      }
+      manifest.customAlbums = customAlbums.filter((a: unknown) => typeof a === 'string' && a.trim());
+      await saveManifest(manifest);
+      return NextResponse.json({ success: true, manifest });
     }
 
-    const manifest = await getManifest();
-    manifest.customAlbums = customAlbums.filter((a: unknown) => typeof a === 'string' && a.trim());
-    await saveManifest(manifest);
-    return NextResponse.json({ success: true, manifest });
+    if (action === 'hide-base-image') {
+      const { src } = body;
+      if (!src || !BASE_GALLERY_IMAGES.find((img) => img.src === src)) {
+        return NextResponse.json({ error: 'Invalid base image src' }, { status: 400 });
+      }
+      const hidden = manifest.hiddenBaseImages || [];
+      if (!hidden.includes(src)) {
+        hidden.push(src);
+      }
+      manifest.hiddenBaseImages = hidden;
+      // Also remove from imageOrder if present
+      if (manifest.imageOrder) {
+        const key = baseImageKey(src);
+        manifest.imageOrder = manifest.imageOrder.filter((k) => k !== key);
+      }
+      await saveManifest(manifest);
+      return NextResponse.json({ success: true, manifest });
+    }
+
+    if (action === 'unhide-base-image') {
+      const { src } = body;
+      if (!src) {
+        return NextResponse.json({ error: 'Missing src' }, { status: 400 });
+      }
+      manifest.hiddenBaseImages = (manifest.hiddenBaseImages || []).filter((s) => s !== src);
+      await saveManifest(manifest);
+      return NextResponse.json({ success: true, manifest });
+    }
+
+    if (action === 'reorder-albums') {
+      const { albumOrder } = body;
+      if (!Array.isArray(albumOrder)) {
+        return NextResponse.json({ error: 'Invalid albumOrder' }, { status: 400 });
+      }
+      manifest.albumOrder = albumOrder.filter((a: unknown) => typeof a === 'string' && a.trim());
+      await saveManifest(manifest);
+      return NextResponse.json({ success: true, manifest });
+    }
+
+    if (action === 'reorder-images') {
+      const { imageOrder } = body;
+      if (!Array.isArray(imageOrder)) {
+        return NextResponse.json({ error: 'Invalid imageOrder' }, { status: 400 });
+      }
+      manifest.imageOrder = imageOrder.filter((k: unknown) => typeof k === 'string');
+      await saveManifest(manifest);
+      return NextResponse.json({ success: true, manifest });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('Album update error:', error);
+    console.error('Patch error:', error);
     return NextResponse.json({ error: 'Update failed' }, { status: 500 });
   }
 }
@@ -147,6 +203,12 @@ export async function DELETE(request: NextRequest) {
       } catch { /* file may not exist */ }
 
       manifest.galleryImages.splice(index, 1);
+
+      // Also remove from imageOrder if present
+      if (manifest.imageOrder) {
+        const key = uploadImageKey(filename);
+        manifest.imageOrder = manifest.imageOrder.filter((k) => k !== key);
+      }
     } else if (action === 'revert-slot') {
       if (!slotId || !manifest.slotOverrides[slotId]) {
         return NextResponse.json({ error: 'No override to revert' }, { status: 404 });
