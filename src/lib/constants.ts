@@ -49,6 +49,7 @@ export const TIGER_MINDSET = [
 export const SOCIAL_LINKS = {
   facebook: 'https://facebook.com/sosabasketball',
   instagram: 'https://instagram.com/sosa_basketball',
+  tiktok: 'https://tiktok.com/@sosa.basketball',
 };
 
 export const MISSION_STATEMENT = `SOSA Basketball is a community-focused, faith-driven non-profit organization dedicated to developing student-athletes both on and off the court. Founded on the belief of putting GOD FIRST and that every child deserves access to structured mentorship, positive leadership, and competitive athletic opportunities, SOSA provides youth with a safe and empowering environment to grow in skill, discipline, confidence, and character.`;

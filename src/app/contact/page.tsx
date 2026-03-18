@@ -40,6 +40,14 @@ function FacebookIcon() {
   );
 }
 
+function TikTokIcon() {
+  return (
+    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.48V13.4a8.16 8.16 0 005.58 2.17v-3.44a4.85 4.85 0 01-3.77-1.67V6.69h3.77z" />
+    </svg>
+  );
+}
+
 function InstagramIcon() {
   return (
     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -127,6 +135,14 @@ export default function ContactPage() {
                     >
                       <InstagramIcon />
                       <span className="text-sm">Instagram</span>
+                    </a>
+                    <a
+                      href={SOCIAL_LINKS.tiktok}
+                      className="flex items-center gap-2 text-gray-400 hover:text-sosa-orange transition-colors duration-200"
+                      aria-label="Follow SOSA Basketball on TikTok"
+                    >
+                      <TikTokIcon />
+                      <span className="text-sm">TikTok</span>
                     </a>
                   </div>
                   <p className="text-gray-500 text-sm leading-relaxed">
