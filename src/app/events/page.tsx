@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import SectionHeading from '@/components/SectionHeading';
 import GoogleCalendar from '@/components/GoogleCalendar';
 import WaiverForm from '@/components/WaiverForm';
+import EventsGrid from '@/components/EventsGrid';
 
 export const metadata: Metadata = {
   title: 'Events & Schedule | SOSA Basketball',
@@ -32,17 +33,13 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* Upcoming Events Placeholder */}
+      {/* Upcoming Events */}
       <section className="py-16 px-4 bg-sosa-gray">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold uppercase tracking-wide mb-6">
             Upcoming Events
           </h2>
-          <div className="border border-gray-700 rounded-lg p-10 text-center">
-            <p className="text-gray-400 text-lg">
-              Events will be posted here. Follow us on social media for updates.
-            </p>
-          </div>
+          <EventsGrid />
         </div>
       </section>
 

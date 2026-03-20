@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import ImageManager from '@/components/admin/ImageManager';
+import EventManager from '@/components/admin/EventManager';
 
 interface Waiver {
   id: string;
@@ -63,7 +64,7 @@ interface Sponsor {
   submittedAt: string;
 }
 
-type Tab = 'waivers' | 'contacts' | 'volunteers' | 'sponsors' | 'images';
+type Tab = 'waivers' | 'contacts' | 'volunteers' | 'sponsors' | 'images' | 'events';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString('en-US', {
@@ -439,13 +440,14 @@ function Dashboard({
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="flex border-b border-gray-800 mt-2">
-          {(['waivers', 'contacts', 'volunteers', 'sponsors', 'images'] as Tab[]).map((tab) => {
+          {(['waivers', 'contacts', 'volunteers', 'sponsors', 'images', 'events'] as Tab[]).map((tab) => {
             const tabLabels: Record<Tab, string> = {
               waivers: 'Waivers',
               contacts: 'Messages',
               volunteers: 'Volunteers',
               sponsors: 'Sponsors',
               images: 'Images',
+              events: 'Events',
             };
             return (
               <button
@@ -540,6 +542,12 @@ function Dashboard({
           {activeTab === 'images' && (
             <section>
               <ImageManager />
+            </section>
+          )}
+
+          {activeTab === 'events' && (
+            <section>
+              <EventManager />
             </section>
           )}
         </div>
