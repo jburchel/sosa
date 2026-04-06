@@ -1,6 +1,19 @@
-export const NAV_LINKS = [
+export type NavLink = {
+  label: string;
+  href: string;
+  children?: { label: string; href: string }[];
+};
+
+export const NAV_LINKS: NavLink[] = [
   { label: 'Home', href: '/' },
-  { label: 'About', href: '/about' },
+  {
+    label: 'About',
+    href: '/about',
+    children: [
+      { label: 'About SOSA', href: '/about' },
+      { label: 'Staff', href: '/about/staff' },
+    ],
+  },
   { label: 'Programs', href: '/programs' },
   { label: 'Teams', href: '/teams' },
   { label: 'Events', href: '/events' },
