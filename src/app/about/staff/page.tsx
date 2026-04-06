@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     'Meet the dedicated coaches and directors behind SOSA Basketball — the team that builds champions on and off the court.',
 };
 
-const STAFF = [
+const STAFF: { name: string; role: string; image: string; objectPosition?: string }[] = [
   {
     name: 'Linwood Chappell Jr.',
     role: 'Head Coach SOSA N9NE',
@@ -43,6 +43,7 @@ const STAFF = [
     name: 'Darnell Williams',
     role: 'SOSA Director / Head Coach SOSA ATE Competitive / Assistant Coach SOSA ATE Developmental',
     image: '/images/staff/darnell_williams.JPG',
+    objectPosition: 'center',
   },
   {
     name: 'Stephanie Williams',
@@ -76,7 +77,8 @@ export default function StaffPage() {
                     src={member.image}
                     alt={member.name}
                     fill
-                    className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    style={{ objectPosition: member.objectPosition || 'top' }}
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                 </div>
